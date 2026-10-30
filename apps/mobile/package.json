@@ -8,7 +8,8 @@
     "android": "expo run:android",
     "prebuild": "expo prebuild -p android",
     "web": "expo start --web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint --ext .ts,.tsx src App.tsx"
   },
   "dependencies": {
     "expo": "~51.0.0",
@@ -19,6 +20,8 @@
   },
   "devDependencies": {
     "@types/react": "~18.2.79",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.0",
     "typescript": "~5.3.3"
   }
 }
