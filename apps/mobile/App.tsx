@@ -1,4 +1,5 @@
 // Copyright (c) 2026 Anon Rothschild. All rights reserved. Proprietary.
+import './polyfills';
 import React, { useMemo, useRef, useState } from 'react';
 import {
   SafeAreaView,
