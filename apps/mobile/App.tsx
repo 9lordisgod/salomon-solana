@@ -15,6 +15,9 @@ import { EngineChip } from './src/components/EngineChip';
 import { MissingModelCard } from './src/components/MissingModelCard';
 import { MISSING_STATUS, askLocal, chipOf, type EngineStatus } from './src/engine';
 import { colors } from './src/theme';
+import { PolicyStrip } from './src/components/PolicyStrip';
+import { WalletScreen } from './src/screens/WalletScreen';
+import { getSession, shortKey, type MwaSessionPublic } from './src/wallet';
 
 type Msg = { id: string; role: 'user' | 'agent'; text: string };
 
@@ -32,6 +35,8 @@ export default function App() {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const listRef = useRef<FlatList<Msg>>(null);
   const empty = msgs.length === 0;
+  const [walletOpen, setWalletOpen] = useState(false);
+  const [wallet, setWallet] = useState<MwaSessionPublic>(getSession());
 
   const send = (raw?: string) => {
     const t = (raw ?? input).trim();
@@ -56,6 +61,14 @@ export default function App() {
     [],
   );
 
+  if (walletOpen) {
+    return (
+      <SafeAreaView style={styles.root}>
+        <WalletScreen onClose={() => setWalletOpen(false)} onSession={setWallet} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.root}>
       <KeyboardAvoidingView
@@ -69,7 +82,17 @@ export default function App() {
           <View style={styles.chipWrap}>
             <EngineChip chip={chip} model={status.model} />
           </View>
+          <Pressable
+            accessibilityLabel="Wallet (Mock MWA)"
+            onPress={() => setWalletOpen(true)}
+            style={({ pressed }) => [styles.walletBtn, pressed && styles.suggestionPressed]}
+          >
+            <Text style={styles.walletText}>
+              {wallet.authorized && wallet.pubkeys[0] ? shortKey(wallet.pubkeys[0]) : 'Wallet'}
+            </Text>
+          </Pressable>
         </View>
+        <PolicyStrip />
 
         {empty ? (
           <View style={styles.hero}>
@@ -166,6 +189,14 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   chipWrap: { marginLeft: 'auto' },
+  walletBtn: {
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  walletText: { fontSize: 12, color: colors.textMuted, fontFamily: Platform.select({ ios: 'Menlo', default: 'monospace' }) },
   hero: { flex: 1, justifyContent: 'center', paddingHorizontal: 20, paddingBottom: 24 },
   pill: {
     alignSelf: 'flex-start',
