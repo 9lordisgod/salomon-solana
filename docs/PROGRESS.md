@@ -2,7 +2,9 @@
 
 ## 2026-10-29: SV-0 STATUS + ARCHITECTURE (sign ≠ broadcast)
 
-- STATUS: tip of record `acdee9a`; **SV-0** parked as design-only (not M2); **SM-0** not landed yet.
+- Merged PR #3 squash → `9cebbeb`. Lead: STATUS/ARCHITECTURE honesty CLEAR.
+- Tip of record: GitHub `main` (no racing short SHA in STATUS).
+- **SV-0** parked as design-only (not M2); **SM-0** not landed yet.
 - ARCHITECTURE mermaid split: Sign approval → Seed Vault → host holds signature → **second** Broadcast confirm → RPC (Lead M3 lock).
 - Linked [DESIGN_SEED_VAULT_BOUNDARIES_V0.md](DESIGN_SEED_VAULT_BOUNDARIES_V0.md). No product claims for live Vault.
 
