@@ -91,3 +91,9 @@ Mainnet spend above 0.5 SOL · SPL without allowlist · `signAndSend` collapse �
 - [x] Allowlist ownership as above (On-Chain owns; Vault/FE display only)
 
 **Co-sign:** Seed Vault Engineer — all four PASS vs SV-0 @ `234b494` / tip `ccd9a57`. No diffs. Approval/sign remains OUT of SM-0 stubs on merge.
+
+## Interface stubs (Lead 2026-10-29)
+
+- `packages/propose` now exports `prepareForSign` + handoff types (`SignApprovalRequest`, `ApprovalDecision`, `SignResult`, `MwaSessionPublic`, `VaultHandoffDenied`) — **stubs only**, pure functions, no network. `SignApprovalRequest` frozen verbatim to SV-0 §7.
+- **M2** = Mock MWA authorize/session (Seed Vault + FE). **M3** uses `prepareForSign` (host attaches `tx_message_bytes_b64`, fee_payer ∈ session pubkeys) → Approval → sign → **separate** broadcast.
+- Still **no** live sign/broadcast, no `signTransactions`; `signDraft` / `broadcastSigned` / `seedVaultSign` remain `NotImplemented`. **No Seed Vault live claim.**
