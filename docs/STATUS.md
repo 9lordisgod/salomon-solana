@@ -1,20 +1,22 @@
 # Status
 
-**As of 2026-10-29 (America/Vancouver).** Tip of record: GitHub `main` (includes PR #3: SV-0 STATUS honesty + ARCHITECTURE sign≠broadcast).
+**As of 2026-10-29 (America/Vancouver).** Tip of record: GitHub `main`.
 
-| Milestone | State |
-|---|---|
-| M0 Scaffold | IN PROGRESS (scaffold on `main`) |
-| M1 Local ask on Seeker | Not started |
-| M2 Seed Vault boundary | Not started |
-| M3 Propose-only transfers / signing | Not started |
-| M4 dApp Store package | Not started |
+| Milestone | Owner | State |
+|---|---|---|
+| M0 Scaffold (Expo shell, propose pkg, SV-0/SM-0 notes) | Lead | **Done** (on `main`) |
+| M1 Android build runs on emulator | Solana Mobile FE + Platform | **Next** — task list in [notes/SHIP_ANDROID_M1.md](notes/SHIP_ANDROID_M1.md) |
+| M2 MWA connect + Mock MWA Wallet | Seed Vault / On-Chain + FE | Not started |
+| M3 Propose-only tx flow (sign ≠ broadcast) | Seed Vault / On-Chain + FE | Design only (SV-0, SM-0) |
+| M4 Local-first ask (on-device or labeled hybrid) | FE + Platform | Not started |
+| M5 Signed APK + listing + privacy/ToS/site | Solana Release + Docs | Not started |
+| M6 dApp Publisher Portal submission | Solana Release | Not started |
 
-### Design notes under `docs/` (not product green)
+### Honesty line
+Nothing is GREEN beyond M0. No verified Android build yet, no live wallet connection, no Seed Vault integration, no on-device model, no signed APK, nothing submitted to the dApp Store. Seed Vault is the **intended** signer.
 
-| Note | State |
-|---|---|
-| **SV-0** Seed Vault / wallet boundaries | **Parked** — Lead-approved design only; see [DESIGN_SEED_VAULT_BOUNDARIES_V0.md](DESIGN_SEED_VAULT_BOUNDARIES_V0.md). **Not M2.** No live MWA / Seed Vault / sign path. |
-| **SM-0** On-chain propose stubs | **Not landed** in this repo yet (await On-Chain tip under `docs/`). |
-
-Nothing is GREEN yet. No on-phone model, Seed Vault integration, chain actions, or dApp Store build has shipped. Prefer “Seed Vault is the **intended** signer” until M2/M3 green.
+### Known blockers
+- Not yet verified that the shell builds on Android (no CI build).
+- MWA is a native module → requires Expo **dev client / prebuild**; Expo Go cannot be used for M2+.
+- Release keystore + publisher wallet must be created and held by Release (human-held secrets).
+- Legal copy (privacy/ToS) needs owner review before M5.
