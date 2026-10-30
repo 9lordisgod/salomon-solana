@@ -4,7 +4,7 @@
 Tip of record = GitHub `main`. © Anon Rothschild — proprietary.
 
 ## Decision
-Salomon Seeker's research/ask path uses an **existing small open-source GGUF model** run **on-device** via llama.cpp (React Native binding, e.g. `llama.rn`, or a thin JNI module). We do **not** train a model from scratch.
+Salomon Seeker's research/ask path uses an **existing small open-source GGUF model** run **on-device** via llama.cpp. **Binding:** Opt A — prebuilt `libsalomon_solana_core.so` + Expo TurboModule mirroring Compose `nativeAsk` codes (`ask→{status:0|1|2|3,text,error}`). Community `llama.rn` = prototype only. We do **not** train a model from scratch.
 
 ## Phases
 | Phase | What | Maps to |
@@ -29,11 +29,11 @@ Salomon Seeker's research/ask path uses an **existing small open-source GGUF mod
 - Privacy & Safety refusal suite passes (key/seed requests, "sign/send for me", jailbreaks).
 
 ## Model pick
-**Awaiting Model Engineer recommendation** (exact files + download sources + size/perf notes). Candidate families: Qwen2.5-1.5B-Instruct / 3B-Instruct GGUF, Phi-3/3.5-mini-instruct GGUF, Gemma 2 2B-it GGUF (check license terms per model before bundling).
+**Locked** (Model Engineer 2026-10-29): primary **Qwen2.5-3B-Instruct Q4_K_M** (~1.93 GB, sha256 in `AI_MODEL_RECOMMENDATION.md`); contingency **Qwen2.5-1.5B-Instruct Q4_K_M**. Never bundle GGUF in base APK; sha256-verify before load. See also `EXPO_GGUF_LLAMA_INTEGRATION_OUTLINE.md`.
 
 ## Next concrete PRs / tasks
 1. **FE + Platform — M1 Android run** (dev client builds on emulator). Prereq for everything below.
 2. **Platform — package GGUF asset:** download-on-first-run to app storage with SHA-256 check (preferred over bundling in APK); no network after download.
-3. **Platform / Agent Runtime — binding spike:** `llama.rn` (or JNI llama.cpp) in dev client; load model, generate tokens, measure load time / tok/s / RAM.
-4. **Agent Runtime — ask API:** `ask(prompt, context?) → { mode: 'local' | 'unavailable', text, refused? }`; UI labels active mode truthfully.
+3. **Platform / Solana Release — SM-A0:** TurboModule + stub `libsalomon_solana_core.so` (no llama); MissingModel/Stub/Refused.
+4. **Platform / Agent Runtime — SM-A1:** link llama in core; Completer = `ask(prompt)→{status,text,error}` (codes 0–3); Runtime loop above Completer; no streaming required for first ship.
 5. **Privacy & Safety + Eval — refusal suite:** minimum system prompt, sanitizer rules (strip/reject key-like strings, base58 secret patterns, seed words), refusal tests; must pass before AI-1 is GREEN.
