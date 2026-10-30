@@ -1,5 +1,12 @@
 # Progress
 
+## 2026-10-29: Goal-tense soft-sync (docs)
+
+- README hero + principles moved to aiming/goal tense; not-shipped parenthetical kept.
+- ARCHITECTURE labeled target design; ask / propose-only paths described as goals.
+- STATUS dated; milestones spelled out; still nothing GREEN.
+- Pure-AI `salomon` left untouched; crypto / Solana Mobile narrative stays in this repo.
+
 ## 2026-10-29: M0 initial scaffold
 
 - Added README, LICENSE, NOTICE, SECURITY, CONTRIBUTING, .editorconfig, and .gitignore.
