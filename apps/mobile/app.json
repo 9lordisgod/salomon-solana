@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Salomon Seeker",
+    "slug": "salomon-solana-mobile",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "android": {
+      "package": "ai.salomon.seeker",
+      "adaptiveIcon": {
+        "backgroundColor": "#0e0f11"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
