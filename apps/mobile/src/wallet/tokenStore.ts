@@ -1,10 +1,11 @@
+// Copyright (c) 2026 Anon Rothschild. All rights reserved. Proprietary.
 /**
- * PRIVATE to src/wallet. MWA auth_token lives only here (AsyncStorage).
- * Never re-export from wallet/index.ts. Never log. Never pass to model/engine.
+ * Host-private MWA auth_token storage. NOT exported from ./index.
+ * The token never enters MwaSessionPublic, UI state, logs, or the AI/model path.
  */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const KEY = 'salomon.wallet.mwa_auth_v1';
+const KEY = 'salomon.mwa.auth_token';
 
 export async function getAuthToken(): Promise<string | null> {
   try {
@@ -22,6 +23,6 @@ export async function clearAuthToken(): Promise<void> {
   try {
     await AsyncStorage.removeItem(KEY);
   } catch {
-    /* fail-closed: nothing to surface */
+    // best effort; session is already cleared in memory
   }
 }

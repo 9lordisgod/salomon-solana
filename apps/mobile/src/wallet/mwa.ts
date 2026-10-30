@@ -1,74 +1,87 @@
+// Copyright (c) 2026 Anon Rothschild. All rights reserved. Proprietary.
 /**
- * M2 Mock MWA: authorize / deauthorize ONLY.
- * No signTransactions / signAndSendTransactions / signMessages / broadcast. Seed Vault live sign NOT shipped.
+ * Seed Vault lane — Mock MWA session boundary (M2).
+ * authorize / deauthorize ONLY. No signTransactions, signAndSendTransactions,
+ * signMessages, or broadcast — those are M3+ behind Lead re-GO.
+ * auth_token is host-private (tokenStore); only MwaSessionPublic leaves this module.
+ * Never throws from connect(): fails closed via ConnectResult codes.
  */
 import { transact } from '@solana-mobile/mobile-wallet-adapter-protocol-web3js';
 import { PublicKey } from '@solana/web3.js';
 import { Buffer } from 'buffer';
-import { WalletSessionError } from './errors';
-import { DEFAULT_CLUSTER, emptySession, sessionFromAuthorize } from './session';
+import { APP_IDENTITY, DISCONNECTED, type ConnectResult, type MwaSessionPublic } from './types';
 import { clearAuthToken, getAuthToken, setAuthToken } from './tokenStore';
-import type { AppIdentity, MwaSessionPublic, SolanaCluster } from './types';
 
-export const APP_IDENTITY: AppIdentity = {
-  name: 'Salomon Seeker',
-  uri: 'https://github.com/9lordisgod/salomon-solana',
-  icon: 'favicon.ico', // relative to uri
-};
+const CLUSTER: MwaSessionPublic['cluster'] = 'devnet';
 
-let current: MwaSessionPublic = emptySession(DEFAULT_CLUSTER);
+let session: MwaSessionPublic = DISCONNECTED;
 
+export function getSession(): MwaSessionPublic {
+  return session;
+}
+
+/** MWA account addresses are base64 of the 32-byte pubkey; expose base58 only. */
 function toBase58(address: string): string {
-  // MWA returns base64 account addresses.
-  return new PublicKey(Buffer.from(address, 'base64')).toBase58();
-}
-
-function isDecline(e: unknown): boolean {
-  const code = (e as { code?: string })?.code ?? '';
-  const msg = String((e as Error)?.message ?? '');
-  return /DECLINED|AUTHORIZATION_FAILED/i.test(code) || /declin|not authorized/i.test(msg);
-}
-
-export async function connect(cluster: SolanaCluster = DEFAULT_CLUSTER): Promise<MwaSessionPublic> {
-  let result: { auth_token: string; accounts: { address: string }[] };
   try {
-    result = await transact(async (wallet) => {
-      const r = await wallet.authorize({ cluster, identity: APP_IDENTITY });
-      return { auth_token: r.auth_token, accounts: r.accounts };
+    return new PublicKey(Buffer.from(address, 'base64')).toBase58();
+  } catch {
+    // already base58 (some wallets)
+    return new PublicKey(address).toBase58();
+  }
+}
+
+function classify(err: unknown): 'user_declined' | 'vault_unavailable' | 'mwa_not_authorized' {
+  const e = err as { code?: string; name?: string; message?: string } | undefined;
+  const s = `${e?.code ?? ''} ${e?.name ?? ''} ${e?.message ?? ''}`;
+  if (/WALLET_NOT_FOUND|ERROR_WALLET_NOT_FOUND|SolanaMobileWalletAdapterWalletNotInstalledError|not installed|no wallet/i.test(s)) {
+    return 'vault_unavailable';
+  }
+  if (/AUTHORIZATION_FAILED|-1\b|declin|reject|cancel|SESSION_CLOSED/i.test(s)) {
+    return 'user_declined';
+  }
+  return 'mwa_not_authorized';
+}
+
+export async function connect(): Promise<ConnectResult> {
+  try {
+    const prior = await getAuthToken();
+    const result = await transact(async (wallet) => {
+      const auth = await wallet.authorize({
+        chain: `solana:${CLUSTER}`,
+        identity: APP_IDENTITY,
+        ...(prior ? { auth_token: prior } : {}),
+      });
+      return { token: auth.auth_token, addresses: auth.accounts.map((a) => a.address) };
     });
-  } catch (e) {
-    current = emptySession(cluster);
-    if (isDecline(e)) throw new WalletSessionError('mwa_not_authorized');
-    throw new WalletSessionError('vault_unavailable');
+    if (!result.token || result.addresses.length === 0) {
+      session = DISCONNECTED;
+      await clearAuthToken();
+      return { ok: false, code: 'mwa_not_authorized' };
+    }
+    await setAuthToken(result.token);
+    session = { authorized: true, cluster: CLUSTER, pubkeys: result.addresses.map(toBase58) };
+    return { ok: true, session };
+  } catch (err) {
+    session = DISCONNECTED;
+    const code = classify(err);
+    if (code !== 'user_declined') await clearAuthToken();
+    return { ok: false, code };
   }
-  const session = sessionFromAuthorize({ cluster, pubkeys: result.accounts.map((a) => toBase58(a.address)) });
-  if (!session.authorized) {
-    current = emptySession(cluster);
-    throw new WalletSessionError('mwa_not_authorized');
-  }
-  await setAuthToken(result.auth_token);
-  current = session;
-  return { ...current, pubkeys: [...current.pubkeys] };
 }
 
 export async function disconnect(): Promise<MwaSessionPublic> {
-  const cluster = current.cluster;
   const token = await getAuthToken();
-  if (token) {
-    try {
+  try {
+    if (token) {
       await transact(async (wallet) => {
         await wallet.deauthorize({ auth_token: token });
       });
-    } catch {
-      /* wallet gone: still clear locally (fail-closed) */
     }
+  } catch {
+    // fail-closed: local state is cleared regardless
+  } finally {
+    await clearAuthToken();
+    session = DISCONNECTED;
   }
-  await clearAuthToken();
-  current = emptySession(cluster);
-  return { ...current };
-}
-
-/** Public session only (in-memory). Token is never read into the return value. */
-export function getSession(): MwaSessionPublic {
-  return { ...current, pubkeys: [...current.pubkeys] };
+  return session;
 }
