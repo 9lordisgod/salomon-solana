@@ -1,8 +1,12 @@
 # Salomon Solana
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-black.svg)](LICENSE)
+![Status: early](https://img.shields.io/badge/status-early%20%2F%20pre--release-lightgrey)
+![Solana Mobile](https://img.shields.io/badge/Solana%20Mobile-Seeker-black)
+
 **Local-first AI research desk for Solana Mobile (Seeker)** — on-device asks by default, propose-only on-chain actions, Seed Vault for signing. Keys never enter the model.
 
-> **Honesty:** M0 scaffold is on `main`. There is **no** dApp Store build, on-phone model, live Seed Vault, or live chain action yet. Everything below that is not marked GREEN is goal-tense.
+> **Honesty:** Scaffold, Android build path, and a Mock-MWA connect slice are on `main`. There is **no** dApp Store build, on-phone model, live Seed Vault, or live chain action yet. Everything below that is not marked GREEN is goal-tense.
 
 ---
 
@@ -52,11 +56,11 @@ A **premium research tool**, not a flashy crypto terminal and not a generic AI c
 | Milestone | State |
 |---|---|
 | **M0** Scaffold (Expo shell, docs, propose stubs, SV-0/SM-0 design) | **Done** on `main` |
-| **M1** Expo Android emulator / device build green | **Next** — [SHIP_ANDROID_M1](docs/notes/SHIP_ANDROID_M1.md) |
+| **M1** Expo Android emulator / device build | Build path locked on `main` (prebuild, gitignored `android/`) — [SHIP_ANDROID_M1](docs/notes/SHIP_ANDROID_M1.md) |
 | **UI-1** Zinc research desk + honest chips | Principles parked — [UI_DESIGN_PRINCIPLES](docs/notes/UI_DESIGN_PRINCIPLES.md) |
-| **M2** MWA connect + Mock Wallet | Not started |
+| **M2** MWA connect + Mock Wallet | **Code on `main`** (connect / disconnect, fail-closed, token kept out of agent path; typecheck/lint/self-test green) — **not GREEN** until verified on a real emulator/device — [checklist](docs/notes/M2_MOCK_MWA_CHECKLIST.md) |
 | **M3** Propose-only tx (sign ≠ broadcast) | Design + interface stubs |
-| **M4 / AI-1** Local GGUF ask + fail-closed refusals | Plan locked; blocked on M1 — [AI decision](docs/notes/AI_DECISION_LOCAL_GGUF.md) · [model pick](docs/notes/AI_MODEL_RECOMMENDATION.md) · [eval suite SM1-S1…S6](docs/notes/SOLANA_M1_LOCAL_GGUF_ASK_EVAL.md) |
+| **M4 / AI-1** Local GGUF ask + fail-closed refusals | Plan locked; not built — [AI decision](docs/notes/AI_DECISION_LOCAL_GGUF.md) · [model pick](docs/notes/AI_MODEL_RECOMMENDATION.md) · [eval suite SM1-S1…S6](docs/notes/SOLANA_M1_LOCAL_GGUF_ASK_EVAL.md) |
 | **M5** Signed APK + listing assets + privacy/ToS | Not started |
 | **M6** dApp Publisher Portal submission | Not started |
 
@@ -88,6 +92,20 @@ Full table: [docs/STATUS.md](docs/STATUS.md) · sequencing: [docs/ROADMAP.md](do
 
 - **Opt A** for native ask: TurboModule + distinct `libsalomon_solana_core.so` (not shared with pure-AI Salomon).
 - GGUF downloaded / sideloaded for dogfood — **never** in the base APK for early ship.
+
+---
+
+## Quickstart (Android emulator)
+
+```bash
+git clone https://github.com/9lordisgod/salomon-solana && cd salomon-solana/apps/mobile
+npm install
+npx expo prebuild -p android   # generates android/ (gitignored)
+npx expo run:android           # debug build on a running emulator
+npm run typecheck && npm run lint && npm run test:wallet
+```
+
+For wallet connect, install the [Mock MWA Wallet](https://github.com/solana-mobile/mock-mwa-wallet) on the emulator (`./gradlew installDebug`). No Seeker hardware needed. Requires Node 20, JDK 17, Android SDK 34. Expo Go is not supported (native modules → dev client).
 
 ---
 
@@ -143,6 +161,10 @@ Do **not** read this README as shipping any of the following today:
 
 ---
 
+## Contributing
+
+Issues and PRs are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Report vulnerabilities privately via GitHub Security Advisories ([SECURITY.md](SECURITY.md)).
+
 ## License
 
-Copyright (c) 2026 Anon Rothschild. All rights reserved. Proprietary. See [LICENSE](LICENSE).
+[MIT](LICENSE) © 2026 Anon Rothschild. Third-party components keep their own licenses — see [NOTICE](NOTICE).
