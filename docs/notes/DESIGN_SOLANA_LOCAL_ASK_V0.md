@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-29 (America/Vancouver) · **Owner:** Agent Runtime (interface) · **Eng:** Solana Mobile FE + Platform · **Roadmap:** M4 Option A (on-device ≤3B); Option B Hybrid documented, off by default.
 **Scope:** salomon-solana only. Not the pure-AI `salomon` runtime. No on-chain execution in ask.
-**Binding source of truth:** [`EXPO_GGUF_LLAMA_INTEGRATION_OUTLINE.md`](./EXPO_GGUF_LLAMA_INTEGRATION_OUTLINE.md) (Platform, Opt A locked).
+**Binding source of truth:** [`EXPO_GGUF_LLAMA_INTEGRATION_OUTLINE.md`](./EXPO_GGUF_LLAMA_INTEGRATION_OUTLINE.md) (Platform, Opt A locked; cited @ tip `e02b690`).
 **Code:** `packages/ask/` (`@salomon-solana/ask`).
 
 ## 1. Layering
@@ -12,7 +12,7 @@ UI chip (apps/mobile engine.ts)  ← EngineChip / chipLabel
 askLocal()  [packages/ask]       ← validation, tool allowlist, sanitizer, system prompt, chat template, digest log
 LocalCompleter.ask(prompt)       ← Platform native: Rust cdylib salomon-solana-core → libsalomon_solana_core.so via Expo TurboModule
 ```
-Agent loop, sanitizer and chat template sit **above** the native completer (Platform lock). No streaming in SM-A1.
+Agent loop, sanitizer and chat template sit **above** the native completer (Platform lock). No streaming in SM-A0/A1.
 
 ## 2. Status chips (all five; never soften)
 
@@ -32,7 +32,7 @@ Native map (Platform lock): `0 MissingModel→missing`, `1 Stub→stub`, `2 Loca
 - `completer.ts` — `interface LocalCompleter { kind:'local'; ask(prompt): Promise<{status,text,error}> }`, `chipOfNative`, `createUnavailableCompleter()` (always status 0).
 - `status.ts` — `MISSING_STATUS`, `getEngineStatus({modelId, assetSha256, backendLinked, stubOptIn, ...})`, `chipOf`, `chipLabel`, `MODEL_ALLOWLIST`, `PINNED_GGUF_SHA256`.
 - `reasons.ts` — reason → HTTP-ish status + chip + plain-language message.
-- `sanitize.ts` — `defaultSanitize` (labelled key-material regex ⇒ throw ⇒ REFUSED). Injectable.
+- Sanitizer: **hook point only** (`deps.sanitize`). Scrub eng (assertNoSecrets, parity with phase3-platform offlineAsk) is **PARKED until Lead opens SM-A1**. v0: no hook ⇒ `policy_mismatch`, completer never called; hook throws ⇒ `input_refused` / REFUSED.
 - `forbidden.ts` — verbatim copy of `packages/propose` `FORBIDDEN_TOOL_RE` / `FORBIDDEN_TOOL_NAMES` (isolation; keep in sync).
 - `ask.ts` — `askLocal(req, deps)`, `assertToolSpecs`.
 - `prompts/source_care.txt` — host-owned research-desk system prompt.
@@ -53,9 +53,9 @@ Native map (Platform lock): `0 MissingModel→missing`, `1 Stub→stub`, `2 Loca
 
 1. Default path = local. REMOTE only if remoteOptIn && gatewayAvailable && per-request consent — not in v0 eng. Never a silent cloud fallback; no model + hybrid off ⇒ MODEL MISSING.
 2. STUB never returns ok:true pretending LOCAL (checked both from EngineStatus and native status 1).
-3. Sanitizer runs on question + every history turn **before** the completer; secrets ⇒ REFUSED, completer never called.
+3. Sanitizer hook (required; eng parked to SM-A1) runs on question + every history turn **before** the completer; secrets ⇒ REFUSED, completer never called.
 4. System prompt is host-owned (file/string). Client cannot send `role:system` (⇒ bad_request). Missing system prompt ⇒ policy_mismatch.
-5. Tool allowlist empty by default. When the on-chain lane opens, only `propose_*` + read-only from `packages/propose`; any `FORBIDDEN_TOOL_*` match ⇒ 403. Ask never imports wallet/auth/Seed Vault sign.
+5. Tool allowlist empty by default. When the on-chain lane opens, only `propose_*` + read-only from `packages/propose`; any `FORBIDDEN_TOOL_*` match ⇒ 403. Ask never imports wallet/auth/Seed Vault sign and never auto-submits txs.
 6. Logs: reason codes + `transcriptDigest` (sha256) only — never prompt, answer, or key material.
 7. Model allowlist: `qwen2.5-3b-instruct-q4_k_m`, GGUF 3B Q4_K_M sha256 `9c9f56a391a3abbd5b89d0245bf6106081bcc3173119d4229235dd9d23253f94`. Reject abliterated/uncensored. Model never in base APK.
 8. Binding: Platform-locked Opt A (outline §2) — new Rust crate `salomon-solana-core` → `libsalomon_solana_core.so` (not Play `salomon_core`) + Expo TurboModule; dev client/prebuild, not Expo Go. `llama.rn` = prototype only. packages/ask stays binding-agnostic.
