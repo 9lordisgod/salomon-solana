@@ -1,0 +1,38 @@
+# Node / RN / Expo
+node_modules/
+.expo/
+dist/
+web-build/
+npm-debug.log*
+yarn-error.log*
+*.tsbuildinfo
+
+# Android
+*.apk
+*.aab
+*.keystore
+*.jks
+android/.gradle/
+android/app/build/
+android/build/
+local.properties
+.gradle/
+
+# iOS
+ios/Pods/
+
+# Rust / Anchor
+target/
+.anchor/
+test-ledger/
+
+# Secrets
+.env
+.env.*
+*keypair*.json
+id.json
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
