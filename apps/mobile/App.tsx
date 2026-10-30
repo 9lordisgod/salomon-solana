@@ -50,7 +50,7 @@ export default function App() {
   const footer = useMemo(
     () => (
       <Text style={styles.footer}>
-        Local by default · REMOTE is always labeled · credentials stay out of the model · Seed Vault not wired
+        Local by default · REMOTE always labeled · credentials out of the model · Seed Vault intended signer (not shipped)
       </Text>
     ),
     [],
@@ -79,7 +79,8 @@ export default function App() {
             <Text style={styles.heroTitle}>What do you want to work on?</Text>
             <Text style={styles.heroSub}>
               Asks stay on-device when a local model is connected. M0 fails closed with no model — nothing is
-              sent anywhere. On-chain actions stay propose-only (Seed Vault not wired yet).
+              sent anywhere. On-chain stays propose-only: Seed Vault is the intended signer; keys never enter
+              the model. Signing is not shipped yet.
             </Text>
             <View style={styles.cardWrap}>
               <MissingModelCard />

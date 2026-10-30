@@ -8,8 +8,8 @@ export function MissingModelCard() {
     <View style={styles.card} accessibilityRole="summary">
       <Text style={styles.kicker}>MODEL MISSING</Text>
       <Text style={styles.body}>
-        Local model missing. On-device ask fails closed — no cloud fallback. Seed Vault signing and chain
-        actions are not wired in this shell yet.
+        Local model missing. On-device ask fails closed — no cloud fallback. Seed Vault is the intended
+        signer (keys never enter the model); signing and chain actions are not shipped in this shell.
       </Text>
     </View>
   );
