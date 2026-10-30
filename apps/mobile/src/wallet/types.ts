@@ -3,9 +3,11 @@
  * Public MWA session shape — mirrors packages/propose/src/handoff.ts MwaSessionPublic.
  * Three public fields only. NO auth token, NO secrets — token is host-private (AsyncStorage, Seed Vault module).
  */
+export type SolanaCluster = 'devnet' | 'testnet' | 'mainnet-beta';
+
 export interface MwaSessionPublic {
   authorized: boolean;
-  cluster: 'devnet' | 'testnet' | 'mainnet-beta'; // M2 default: 'devnet'
+  cluster: SolanaCluster; // M2 default: 'devnet'
   pubkeys: string[]; // base58; empty when not authorized
 }
 
