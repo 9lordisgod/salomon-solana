@@ -1,6 +1,6 @@
 # Status
 
-**As of 2026-10-29 (America/Vancouver).** Tip of record: GitHub `main` @ `acdee9a` (includes soft-sync + SV-0 park).
+**As of 2026-10-29 (America/Vancouver).** Tip of record: GitHub `main` @ `9cebbeb` (PR #3 squash: SV-0 STATUS + ARCHITECTURE sign≠broadcast).
 
 | Milestone | State |
 |---|---|
