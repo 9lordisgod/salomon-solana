@@ -2,12 +2,16 @@
 
 > Goal-tense. Tip of record = GitHub `main`. Nothing below is shipped unless STATUS.md says GREEN.
 > Constraints: local by default · fail closed · propose-only on-chain · explicit user approval for every sign and broadcast · model never holds keys · no overclaims · emulator + Mock MWA Wallet is enough for dev (no physical Seeker required).
+> AI: existing small open-source GGUF on-device — **no custom training for M0–M5 / early ship**. Decision: [notes/AI_DECISION_LOCAL_GGUF.md](notes/AI_DECISION_LOCAL_GGUF.md).
 
 ## Ownership
 | Area | Owner |
 |---|---|
 | Mobile shell (Expo/RN, screens, nav, Android build) | **Solana Mobile FE** |
 | Wallet integration (MWA / Seeker Connect, Seed Vault boundary) + `packages/propose` | **Seed Vault / On-Chain** |
+| Model selection (GGUF file, quant, license, size/perf) | **Model Engineer** |
+| llama.cpp binding, model asset packaging, ask API | **Platform / Agent Runtime** |
+| System prompt, sanitizer, refusal suite | **Privacy & Safety + Eval Lead** |
 | Signed APK, keystore, listing assets, Publisher Portal | **Solana Release** |
 | EAS/CI/Gradle packaging, dev-client builds | **Platform** |
 | README, privacy/ToS copy, website, honesty review | **Solana Docs** |
@@ -29,9 +33,14 @@ Expo SDK 51 dev-client build installs and launches on Android emulator (API 34) 
 Agent drafts SOL transfer → `packages/propose` sanitizes + simulates (devnet) → review screen shows exact amount/recipient/fee → user taps Approve → wallet signs (`signTransactions`) → **separate** explicit Broadcast tap sends.
 - Acceptance: model module has no import path to wallet/auth; reject paths at each step; devnet only by default; mainnet behind explicit setting.
 
-### M4 — Local-first research/ask (FE + Platform)
-Option A: small on-device model (e.g. llama.rn / ExecuTorch, ≤1–3B quantized). Option B: clearly labeled **Hybrid** remote mode, off by default, per-request consent banner.
-- Acceptance: no model available + hybrid off → ask returns "Local model unavailable" (fail closed); UI labels the active mode truthfully.
+### M4 — Local-first research/ask = AI-1 (+ AI-2 start)
+**AI-1:** existing small GGUF (Qwen2.5-1.5B/3B-Instruct, Phi mini, Gemma 2 2B class; Q4) via llama.cpp binding (`llama.rn` or JNI) in the dev-client app. Model pick: awaiting Model Engineer.
+**AI-2:** system prompt + sanitizer + fail-closed refusals; simple on-device notes/document context.
+- First AI milestone: **small GGUF model answers locally inside the app with fail-closed refusals.**
+- Acceptance: answers offline on emulator + arm64 device; model missing → "Local model unavailable" (fail closed, no silent remote); Privacy & Safety refusal suite passes (keys/seed requests, sign/send-for-me, jailbreaks); no keys/credentials in prompts or logs; UI labels mode truthfully.
+
+### AI-3 — Later only (post-ship, out of scope for M0–M5)
+Light QLoRA fine-tune only if real usage shows clear gaps. Optional remote path = explicit per-request user opt-in, clearly labeled, never a silent cloud fallback. **No custom model training before then.**
 
 ### M5 — Signed release APK + listing + legal + website (Release + Docs)
 - Release keystore (dedicated for dApp Store, backed up offline; never committed). `eas build -p android --profile production` with `buildType: apk` or `./gradlew assembleRelease`.
