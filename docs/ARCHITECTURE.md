@@ -1,9 +1,11 @@
 # Architecture
 
-Salomon Solana has two paths that never share secrets.
+> **Target design** — not shipped. No on-phone SLM, Seed Vault signing, or chain submit path is live yet. See [STATUS.md](STATUS.md).
 
-1. **Ask path (local):** the prompt runs through the on-device SLM. If no local model is available, the ask fails closed and is refused. There is no silent cloud fallback.
-2. **On-chain path (propose-only):** the model emits a *proposal* (for example a transfer). The proposal is sanitized, checked against an allowlist, and simulated. Only then is it shown to you for explicit approval in Seed Vault. The model never holds keys.
+Salomon Solana is designed with two paths that never share secrets.
+
+1. **Ask path (local, goal):** the prompt would run through an on-device SLM. If no local model is available, the ask fails closed and is refused. There is no silent cloud fallback.
+2. **On-chain path (propose-only, goal):** the model would emit a *proposal* (for example a transfer). The proposal is meant to be sanitized, checked against an allowlist, and simulated. Only then would it be shown for explicit approval in Seed Vault. The model never holds keys.
 
 ```mermaid
 %%{init: {'theme':'base','themeVariables':{'primaryColor':'#18181b','primaryTextColor':'#fafafa','primaryBorderColor':'#a1a1aa','lineColor':'#71717a','secondaryColor':'#27272a','tertiaryColor':'#3f3f46','fontFamily':'monospace'}}}%%

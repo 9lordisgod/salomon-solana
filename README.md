@@ -1,14 +1,14 @@
 # Salomon Solana
 
-**A local-first AI research agent for Solana Mobile and Seeker.**
+> **Salomon Solana is aiming to be a local-first AI research agent for Solana Mobile (Seeker) — on-device by default; notes stay on-device; Seed Vault for signing; light Solana actions only when you approve.** (Mobile app / Seed Vault signing / chain actions not shipped yet.)
 
-Salomon Solana is the on-chain sibling of [Salomon](https://github.com/9lordisgod/salomon). It keeps sensitive research on-device by default with a small language model (SLM). For on-chain actions it only *proposes* them. Every proposal is sanitized and fails closed, and nothing is signed until you approve it in **Seed Vault**. The model never sees raw keys.
+Salomon Solana is the on-chain sibling of [Salomon](https://github.com/9lordisgod/salomon). Crypto / Solana Mobile narrative lives here; pure-AI Salomon stays separate. This track is designed to keep sensitive research on-device by default with a small language model (SLM). For on-chain actions it would only *propose* them. Every proposal is meant to be sanitized and fail closed, and nothing would be signed until you approve it in **Seed Vault**. The model must never see raw keys.
 
 ## Principles
 
-- **Local-first:** asks run on the device. If local inference is unavailable, the app refuses instead of silently using the cloud.
-- **Propose-only on-chain:** the agent drafts transactions, and only you sign them, through Seed Vault.
-- **No keys in the model:** private keys never reach the model, its prompts, or its logs.
+- **Local-first (goal):** asks are designed to run on the device. If local inference is unavailable, the app should refuse instead of silently using the cloud.
+- **Propose-only on-chain (goal):** the agent would draft transactions; only you would sign them, through Seed Vault.
+- **No keys in the model:** private keys must never reach the model, its prompts, or its logs.
 
 ## Status
 
