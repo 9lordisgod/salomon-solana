@@ -7,7 +7,7 @@ Expo / React Native shell for **Solana Seeker / Saga (Android)**. Separate from 
 - Chat-first research desk (zinc / mono)
 - Honest engine chip: `LOCAL` · `STUB` · `REMOTE` · `MODEL MISSING` · `REFUSED`
 - Every ask **fails closed** — no local model wired yet, no silent cloud fallback
-- Seed Vault / Mobile Wallet Adapter **not wired**
+- Seed Vault / Mobile Wallet Adapter **not wired** (M2 Mock MWA chrome below)
 
 ```bash
 npm install
@@ -60,3 +60,14 @@ Types only in `src/vault/types.ts` — match `docs/DESIGN_SEED_VAULT_BOUNDARIES_
 (`SignApprovalRequest` / `ExportApprovalRequest` / `SignResult`). Approval UX screens land
 with M2/M3: show `human_summary` + `draft_sha256` (public fee_payer/cluster only); Sign then
 **separate** Broadcast confirm. No paste-key; refuse in-product seed/mnemonic export.
+
+## M2 — Mock MWA (authorize/session chrome)
+
+Checklist: `docs/notes/M2_MOCK_MWA_CHECKLIST.md`.
+
+- FE ships chrome: `WalletScreen` (Connect / Disconnect / truncated pubkey / fail-closed copy), header Wallet entry, always-on policy strip `LOCAL · PROPOSE-ONLY · APPROVAL REQUIRED` (separate from the engine chip).
+- `src/wallet/types.ts` mirrors `MwaSessionPublic` (three public fields). No auth token in FE state.
+- `src/wallet/mwa.ts` is a **fail-closed placeholder** — Seed Vault Engineer lands the real `transact` authorize/deauthorize + AsyncStorage auth token behind the same API (`connect` / `disconnect` / `getSession`).
+- Fail-closed copy: `No MWA wallet found` (vault_unavailable) · `Wallet not connected` (mwa_not_authorized) · `Connection declined` (no state change). No paste-a-key, fake pubkey, silent reauth.
+- Boundary: `.eslintrc.cjs` forbids `src/agent/**` importing `wallet` (`npm run lint`).
+- Dogfood: Android emulator + Mock MWA Wallet app. **Mock MWA ≠ Seed Vault live.** No `sign*`, prepare-for-sign, or broadcast until M3.
