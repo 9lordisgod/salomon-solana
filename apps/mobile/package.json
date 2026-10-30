@@ -9,12 +9,13 @@
     "prebuild": "expo prebuild -p android",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint --ext .ts,.tsx src App.tsx",
     "test:wallet": "npx --yes tsx src/wallet/session.selftest.ts"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "1.23.1",
-    "@solana-mobile/mobile-wallet-adapter-protocol": "^2.1.3",
-    "@solana-mobile/mobile-wallet-adapter-protocol-web3js": "^2.1.3",
+    "@solana-mobile/mobile-wallet-adapter-protocol": "2.2.2",
+    "@solana-mobile/mobile-wallet-adapter-protocol-web3js": "2.2.2",
     "@solana/web3.js": "^1.95.3",
     "buffer": "^6.0.3",
     "expo": "~51.0.0",
@@ -26,6 +27,8 @@
   },
   "devDependencies": {
     "@types/react": "~18.2.79",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.0",
     "typescript": "~5.3.3"
   }
 }
