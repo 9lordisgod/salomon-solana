@@ -34,7 +34,7 @@ cd mock-mwa-wallet && ./gradlew installDebug   # or open in Android Studio and R
 ## Task 3 — MWA connect (M2)
 ```bash
 cd apps/mobile
-npx expo install @solana-mobile/mobile-wallet-adapter-protocol-web3js @solana-mobile/mobile-wallet-adapter-protocol @solana/web3js react-native-get-random-values buffer @react-native-async-storage/async-storage
+npx expo install @solana-mobile/mobile-wallet-adapter-protocol-web3js @solana-mobile/mobile-wallet-adapter-protocol @solana/web3.js react-native-get-random-values buffer @react-native-async-storage/async-storage
 npx expo run:android
 ```
 Files:
