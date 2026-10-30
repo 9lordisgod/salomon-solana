@@ -1,6 +1,6 @@
 # M2 / M3 program boundaries — On-Chain × Seed Vault
 
-**Status:** LOCKED outline for Seed Vault review · after M0 `002f34e` · SV-0 @ `234b494`  
+**Status:** Seed Vault **CO-SIGNED** (2026-10-29) · after M0 `002f34e` · SV-0 @ `234b494` · outline tip `ccd9a57`  
 **Authors:** On-Chain Engineer · Seed Vault Engineer (co-own Vault rows)  
 **Binding:** APPROVED `docs/notes/DESIGN_SOLANA_MOBILE_ONCHAIN_V0.md` · SV-0 `docs/DESIGN_SEED_VAULT_BOUNDARIES_V0.md`  
 **Lead:** live MWA/sign held until SM-1 / Lead M2. sign ≠ broadcast (two user steps). No in-product seed export.
@@ -85,7 +85,9 @@ Mainnet spend above 0.5 SOL · SPL without allowlist · `signAndSend` collapse �
 
 ## Seed Vault review checklist
 
-- [ ] SM-0 artefact shape matches SV-0 hand-off
-- [ ] M2 deny paths / no keystore fallback
-- [ ] M3/SM-1 fee_payer + hash abort + sign≠broadcast
-- [ ] Allowlist ownership as above
+- [x] SM-0 artefact shape matches SV-0 hand-off (`DraftArtefact` + host-only optional `tx_message_bytes_b64`)
+- [x] M2 deny paths / no keystore fallback
+- [x] M3/SM-1 fee_payer + hash abort + sign≠broadcast
+- [x] Allowlist ownership as above (On-Chain owns; Vault/FE display only)
+
+**Co-sign:** Seed Vault Engineer — all four PASS vs SV-0 @ `234b494` / tip `ccd9a57`. No diffs. Approval/sign remains OUT of SM-0 stubs on merge.
