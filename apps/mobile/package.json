@@ -9,6 +9,7 @@
     "prebuild": "expo prebuild -p android",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint --ext .ts,.tsx src App.tsx",
     "test:wallet": "npx --yes tsx src/wallet/session.selftest.ts"
   },
   "dependencies": {
@@ -26,6 +27,8 @@
   },
   "devDependencies": {
     "@types/react": "~18.2.79",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.0",
     "typescript": "~5.3.3"
   }
 }
