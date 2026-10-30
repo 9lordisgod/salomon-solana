@@ -1,3 +1,4 @@
+import './polyfills';
 // Copyright (c) 2026 Anon Rothschild. All rights reserved. Proprietary.
 import React, { useMemo, useRef, useState } from 'react';
 import {
@@ -15,6 +16,7 @@ import { EngineChip } from './src/components/EngineChip';
 import { MissingModelCard } from './src/components/MissingModelCard';
 import { MISSING_STATUS, askLocal, chipOf, type EngineStatus } from './src/engine';
 import { colors } from './src/theme';
+import { WalletScreen } from './src/screens/WalletScreen';
 
 type Msg = { id: string; role: 'user' | 'agent'; text: string };
 
@@ -29,6 +31,7 @@ export default function App() {
   const status: EngineStatus = MISSING_STATUS;
   const chip = chipOf(status);
   const [input, setInput] = useState('');
+  const [walletOpen, setWalletOpen] = useState(false);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const listRef = useRef<FlatList<Msg>>(null);
   const empty = msgs.length === 0;
@@ -69,7 +72,15 @@ export default function App() {
           <View style={styles.chipWrap}>
             <EngineChip chip={chip} model={status.model} />
           </View>
+          <Pressable
+            accessibilityLabel="Wallet"
+            onPress={() => setWalletOpen((o) => !o)}
+            style={({ pressed }) => [styles.walletBtn, pressed && styles.suggestionPressed]}
+          >
+            <Text style={styles.walletBtnText}>{walletOpen ? 'Close' : 'Wallet'}</Text>
+          </Pressable>
         </View>
+        {walletOpen ? <WalletScreen /> : null}
 
         {empty ? (
           <View style={styles.hero}>
@@ -166,6 +177,14 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
   },
   chipWrap: { marginLeft: 'auto' },
+  walletBtn: {
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  walletBtnText: { color: colors.textMuted, fontSize: 12 },
   hero: { flex: 1, justifyContent: 'center', paddingHorizontal: 20, paddingBottom: 24 },
   pill: {
     alignSelf: 'flex-start',
