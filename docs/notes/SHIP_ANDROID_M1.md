@@ -6,23 +6,36 @@ Owner: **Solana Mobile FE** (shell) · **Platform** (build) · **Seed Vault / On
 - Node 20 LTS, JDK 17, Android Studio (SDK 34, emulator image API 34 x86_64 Google APIs), `ANDROID_HOME` set.
 - No physical Seeker needed.
 
+## Native project policy (Platform + Lead LOCK)
+- **gitignore `apps/mobile/android/` + `expo prebuild`** — do not commit the generated tree.
+- FE box nested KVM is **not** the acceptance host (guest may never boot).
+
 ## Task 1 — Android build runs (M1)
 ```bash
 git clone https://github.com/9lordisgod/salomon-solana && cd salomon-solana/apps/mobile
 npm install
 npx expo install --fix            # align deps to SDK 51
 npx expo install expo-dev-client expo-status-bar
-npx expo prebuild -p android      # generates android/ (gitignore it or commit — Platform decides)
+npx expo prebuild -p android      # generates android/ (gitignored)
 npx expo run:android              # builds debug APK, installs on running emulator
 npm run typecheck
 ```
 File changes:
 - `apps/mobile/package.json`: scripts `"android": "expo run:android"`, `"prebuild": "expo prebuild -p android"`; add `expo-dev-client`.
-- `apps/mobile/app.json`: add `icon`, `android.adaptiveIcon.foregroundImage`, `android.versionCode: 1`, `plugins: ["expo-dev-client"]`.
-- `apps/mobile/assets/`: placeholder `icon.png` (1024²), `adaptive-icon.png`.
+- `apps/mobile/app.json`: add `splash.backgroundColor`, `android.versionCode: 1`, `plugins: ["expo-dev-client"]` (icons optional later).
 - If monorepo resolution breaks (packages/propose): add `apps/mobile/metro.config.js` with `watchFolders` = repo root and `nodeModulesPaths`.
+- Low-RAM hosts: after prebuild set `org.gradle.jvmargs=-Xmx4096m` in generated `android/gradle.properties`.
 
-Acceptance: clean clone → `npx expo run:android` → app launches to home on emulator; typecheck green.
+### Verified launch path (acceptance host)
+When the FE/CI box cannot boot an emulator, use a **host with a real device or local emulator**:
+
+```bash
+# after prebuild + assembleDebug
+adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+npx expo start --dev-client   # Metro; open the installed app
+```
+
+Acceptance: typecheck green **and** app launches to home on emulator, USB device, or CI with real KVM. Box nested KVM alone does **not** count as GREEN.
 
 ## Task 2 — Mock MWA Wallet on emulator
 ```bash

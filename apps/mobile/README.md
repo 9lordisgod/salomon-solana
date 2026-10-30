@@ -18,7 +18,7 @@ npm run typecheck
 
 ## M1 — Android native build (SHIP_ANDROID_M1 Task 1)
 
-Generated `android/` is **not** committed (see root `.gitignore`). Prebuild locally:
+**LOCK (Platform + Lead):** generated `android/` is gitignored; always `expo prebuild`. See `docs/notes/SHIP_ANDROID_M1.md`.
 
 ```bash
 npm install
@@ -38,9 +38,17 @@ org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m
 `splash.backgroundColor` in `app.json` is required — without it AAPT fails on
 `splashscreen_background`.
 
-**Status:** typecheck + prebuild + `assembleDebug` verified on FE box. Emulator
-home-screen launch **not** verified here (nested KVM inert). Hold M1 GREEN until
-home launches on emulator, USB device, or CI with real KVM.
+### Verified launch path (when box emulator cannot boot)
+
+```bash
+adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+npx expo start --dev-client
+```
+
+Use a host with a USB device or local emulator. FE box nested KVM is **not** the acceptance host.
+
+**Status:** typecheck + prebuild + `assembleDebug` verified on FE box. Home-screen launch
+**not** verified here. Hold M1 GREEN until home launches on emulator, USB device, or CI with real KVM.
 
 ## Not claimed
 
