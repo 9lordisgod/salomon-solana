@@ -4,6 +4,7 @@
 
 - README hero + principles moved to aiming/goal tense; not-shipped parenthetical kept.
 - ARCHITECTURE labeled target design; ask / propose-only paths described as goals.
+- ROADMAP / PRODUCT_SCOPE marked M1–M4 planned; in-scope as goals; sibling `salomon` called out.
 - STATUS dated; milestones spelled out; still nothing GREEN.
 - Pure-AI `salomon` left untouched; crypto / Solana Mobile narrative stays in this repo.
 
