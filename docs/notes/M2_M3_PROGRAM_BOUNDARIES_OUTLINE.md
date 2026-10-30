@@ -1,55 +1,91 @@
-# M2 / M3 program boundaries (outline) — On-Chain × Seed Vault
+# M2 / M3 program boundaries — On-Chain × Seed Vault
 
-**Status:** OUTLINE for Seed Vault Engineer + Lead · after M0 `002f34e`  
-**Authors:** On-Chain Engineer (draft) · Seed Vault Engineer (co-own Vault rows)  
-**Binding:** APPROVED `DESIGN_SOLANA_MOBILE_ONCHAIN_V0.md` · Seed Vault `DESIGN_SEED_VAULT_BOUNDARIES_V0.md`  
-**Note:** Lead roadmap M2 = Seed Vault boundary; M3 = propose-only transfers + signing. On-Chain eng slice naming: **SM-0** stubs now; SM-1 = first live Vault sign (maps under Lead M2/M3).
+**Status:** LOCKED outline for Seed Vault review · after M0 `002f34e` · SV-0 @ `234b494`  
+**Authors:** On-Chain Engineer · Seed Vault Engineer (co-own Vault rows)  
+**Binding:** APPROVED `docs/notes/DESIGN_SOLANA_MOBILE_ONCHAIN_V0.md` · SV-0 `docs/DESIGN_SEED_VAULT_BOUNDARIES_V0.md`  
+**Lead:** live MWA/sign held until SM-1 / Lead M2. sign ≠ broadcast (two user steps). No in-product seed export.
 
-## Split of ownership
+Roadmap map: Lead **M2** = Seed Vault boundary · Lead **M3** = propose-only transfers + signing. On-Chain **SM-0** = stubs now · **SM-1** = first live Vault sign (under Lead M2/M3).
 
-| Concern | M2 (Vault boundary) | M3 (propose + sign UX) | Custom `onchain/` program |
-|---------|---------------------|-------------------------|---------------------------|
-| MWA authorize / session | **Seed Vault** | FE wires UX; Vault owns rules | N/A |
-| Keys never in model | **Seed Vault** (+ sanitizer) | Prove end-to-end | N/A |
-| Draft schema / allowlists / caps | On-Chain (SM-0→) | On-Chain | Only if SM-2 receipt program opens |
-| `human_summary` + `draft_sha256` | Contract shared | FE displays; Vault aborts on hash mismatch | Optional on-chain receipt of hash |
-| `sign` / `signAndSend` | Denied in loop | Vault path after Approval only; **sign ≠ broadcast** until PS | Forbidden as agent tools |
-| System + SPL transfers | — | **Yes** (no custom program) | Placeholder only |
-| Attestation (TEE inference) | Orthogonal | Orthogonal | Not wallet auth |
+## Path note (vs SV-0)
+
+| Doc | Path on `salomon-solana` |
+|-----|--------------------------|
+| SV-0 (Seed Vault) | `docs/DESIGN_SEED_VAULT_BOUNDARIES_V0.md` |
+| On-chain DESIGN (APPROVED) | `docs/notes/DESIGN_SOLANA_MOBILE_ONCHAIN_V0.md` |
+| This boundary note | `docs/notes/M2_M3_PROGRAM_BOUNDARIES_OUTLINE.md` |
+
+No conflict with SV-0: complementary custody vs propose/allowlist. Optional later: mirror on-chain DESIGN to `docs/` root for parity with SV-0 — **not required** for SM-0.
+
+---
+
+## SM-0 (now) — On-Chain
+
+- **DraftArtefact** = `{ draft_json, draft_sha256, human_summary }`  
+  - Optional `tx_message_bytes_b64` **only** at prepare-for-sign, **host-filled** — never model. Absent from SM-0 propose output.
+- `human_summary` + `draft_sha256` **host-built/verified**; model-supplied values ignored if present.
+- Sign / broadcast / send / import_key / export_key: `NotImplemented` → treat as AgentDenied; **never** registered as model tools.
+- Approval / sign handoff **OUT** of SM-0 code — stubs stop at unsigned draft.
+- `onchain/` Anchor folder stays placeholder only (no deploy, no program ID).
+- Package: `packages/propose` (types/stubs/tests).
+
+## M2 (Vault boundary) — Seed Vault lane
+
+- MWA authorize session; **public pubkey(s) only** on host; keys never in model.
+- Missing Vault / MWA ⇒ deny with plain reason; **no** paste-key / in-app keystore fallback.
+- No product “Vault signs” claims until M2 green.
+- Lead: hold live MWA/sign until SM-1 / M2.
+
+## M3 / SM-1 (sign path) — joint
+
+- `fee_payer` **must** equal connected Vault account or abort.
+- `draft_sha256` mismatch at sign time ⇒ abort; no signature.
+- Flow: **propose → Approval UX (summary+hash) → Seed Vault sign → signature to host only → separate Broadcast confirm**.
+- **sign ≠ broadcast** locked. No `signAndSend` collapse without Lead+PS.
+- Signed payload / signature **never** re-enters model context (at most opaque status).
+- Cluster on draft from **host env**; model cluster ignored/denied.
+- No in-product seed/mnemonic export — refuse; OS/Vault backup only.
+- TEE / inference attest **≠** wallet auth.
+
+## Allowlists — On-Chain owns; Vault consumes
+
+| Item | Owner | Consumer |
+|------|-------|----------|
+| Program IDs (when any) | On-Chain (host env) | Approval display (Vault/FE) |
+| Mint allowlist + per-mint caps | On-Chain (host env) | Approval display |
+| Spend caps (`MAX_DRAFT_LAMPORTS`, cluster ceilings) | On-Chain (host env) | Approval display |
+| Connected account pubkey | Seed Vault / MWA session | fee_payer equality check |
+
+Vault Engineer does **not** redefine allowlists — displays what On-Chain validated.
 
 ## Program surface
 
 | Milestone | Programs touched | Custom Anchor in `onchain/` |
 |-----------|------------------|-----------------------------|
-| SM-0 (now) | None (draft JSON only) | Placeholder README only |
-| Lead M2 / SM-1 prep | None for custody proof | Still empty |
-| Lead M3 / SM-1 | System Program + SPL Token (allowlisted mints) | **Still empty** unless Lead opens receipt program |
-| Later SM-2 | Optional attestation/receipt program | Design + PS gate before any deploy |
+| SM-0 | None (draft JSON only) | Placeholder only |
+| M2 | None for custody proof | Still empty |
+| M3 / SM-1 | System Program + SPL Token (allowlisted mints) | **Empty** unless Lead opens receipt program |
+| Later SM-2 | Optional attestation/receipt program | Design + PS before any deploy |
 
-**Hard rule:** no custom program ID in SM-0/SM-1. `onchain/` must not gain deploy scripts that imply a live program.
-
-## Interface contract (hand-off)
+## Interface contract
 
 ```text
 On-Chain propose_*  →  DraftArtefact { draft_json, draft_sha256, human_summary }
-        ↓
-FE Approval UX (show summary + hash + cluster + amounts)
+        ↓  (SM-1 prepare-for-sign may add host tx_message_bytes_b64)
+FE Approval UX (summary + hash + cluster + amounts)
         ↓ user confirms Sign
 Seed Vault / MWA sign(exact bytes)  →  signature to HOST only
         ↓ optional second confirm
 Host broadcast  →  RPC
 ```
 
-- Model never sees signature / seed / Vault token.  
-- fee_payer must equal connected Vault account.  
-- Hash mismatch ⇒ abort (Vault Engineer).
-
-## Open for Seed Vault Engineer
-
-1. Confirm M2 success criteria: authorize session + deny path when Vault missing + no key in model logs (digest-only).  
-2. Confirm SM-1 sign payload encoding (tx message bytes vs draft_json) for hash binding.  
-3. Co-sign this outline → park any edits under `docs/notes/`.
-
 ## Non-goals until PS+Lead open
 
-Mainnet spend above 0.5 SOL · SPL without allowlist · `signAndSend` collapse · custom program deploy · silent chain.
+Mainnet spend above 0.5 SOL · SPL without allowlist · `signAndSend` collapse · custom program deploy · silent chain · in-product seed export.
+
+## Seed Vault review checklist
+
+- [ ] SM-0 artefact shape matches SV-0 hand-off
+- [ ] M2 deny paths / no keystore fallback
+- [ ] M3/SM-1 fee_payer + hash abort + sign≠broadcast
+- [ ] Allowlist ownership as above

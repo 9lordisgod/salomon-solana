@@ -117,6 +117,7 @@ interface DraftArtefact {
   draft_json: string;
   draft_sha256: string;         // sha256(draft_json)
   human_summary: string;        // host-generated, deterministic
+  tx_message_bytes_b64?: string; // HOST only at prepare-for-sign (SM-1+); never model
 }
 ```
 

@@ -28,6 +28,8 @@ export interface DraftArtefact {
   draft_json: string;
   draft_sha256: string;
   human_summary: string;
+  /** Host-filled only at prepare-for-sign (SM-1+). Never model-supplied. Absent in SM-0 propose output. */
+  tx_message_bytes_b64?: string;
 }
 
 export interface ProposeConfig {
