@@ -16,6 +16,40 @@ npm run android   # emulator or Seeker
 npm run typecheck
 ```
 
+## M1 — Android native build (SHIP_ANDROID_M1 Task 1)
+
+**LOCK (Platform + Lead):** generated `android/` is gitignored; always `expo prebuild`. See `docs/notes/SHIP_ANDROID_M1.md`.
+
+```bash
+npm install
+npx expo install --fix
+npm run prebuild          # or: npx expo prebuild -p android
+npm run android           # expo run:android — needs emulator or USB device
+npm run typecheck
+```
+
+After prebuild, if Gradle OOMs on Hermes Jetify (low-RAM hosts), set in the generated
+`android/gradle.properties`:
+
+```properties
+org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m
+```
+
+`splash.backgroundColor` in `app.json` is required — without it AAPT fails on
+`splashscreen_background`.
+
+### Verified launch path (when box emulator cannot boot)
+
+```bash
+adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+npx expo start --dev-client
+```
+
+Use a host with a USB device or local emulator. FE box nested KVM is **not** the acceptance host.
+
+**Status:** typecheck + prebuild + `assembleDebug` verified on FE box. Home-screen launch
+**not** verified here. Hold M1 GREEN until home launches on emulator, USB device, or CI with real KVM.
+
 ## Not claimed
 
 On-device SLM, dApp Store build, live Seed Vault signing, or chain submission.

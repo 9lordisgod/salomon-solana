@@ -7,7 +7,8 @@ npm-debug.log*
 yarn-error.log*
 *.tsbuildinfo
 
-# Android
+# Android — generated native project (expo prebuild); do not commit
+apps/mobile/android/
 *.apk
 *.aab
 *.keystore
@@ -20,6 +21,7 @@ local.properties
 
 # iOS
 ios/Pods/
+apps/mobile/ios/
 
 # Rust / Anchor
 target/
